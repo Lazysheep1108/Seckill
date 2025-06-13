@@ -9,6 +9,7 @@ import com.lazySheep.seckill.util.ValidatorUtil;
 import com.lazySheep.seckill.vo.LoginVo;
 import com.lazySheep.seckill.vo.RespBean;
 import com.lazySheep.seckill.vo.RespBeanEnum;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
  * @project seckill
  * @description
  */
+@Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     @Resource
