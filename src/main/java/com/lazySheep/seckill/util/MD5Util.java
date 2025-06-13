@@ -16,7 +16,7 @@ public class MD5Util {
         return DigestUtils.md5Hex(src);
     }
 
-    private static final String SALT = "UCmP7xHA";
+    private static final String SALT = "abcdefgh";
 
     //加密加盐, 完成的是 md5（pass+salt1）
     public static String inputPassToMidPass(String inputPass){

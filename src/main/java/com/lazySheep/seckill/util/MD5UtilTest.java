@@ -19,9 +19,9 @@ public class MD5UtilTest {
 
         System.out.println(MD5Util.inputPassToMidPass("123"));
 
-        System.out.println(MD5Util.midPassToDBPass(MD5Util.inputPassToMidPass("123"),"UCmP7xHA"));
+        System.out.println(MD5Util.midPassToDBPass(MD5Util.inputPassToMidPass("123"),"abcdefgh"));
 
-        System.out.println(MD5Util.inputPassToDBPass("123","UCmP7xHA"));
+        System.out.println(MD5Util.inputPassToDBPass("123","abcdefgh"));
 
     }
 
