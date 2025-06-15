@@ -21,6 +21,7 @@ public class LoginVo {
     @NotNull
     @IsMobile
     private String mobile;
+
     @NotNull
     @Length(min = 32)
     private String password;
