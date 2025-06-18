@@ -5,7 +5,9 @@ import com.lazySheep.seckill.exception.GlobalException;
 import com.lazySheep.seckill.mapper.UserMapper;
 import com.lazySheep.seckill.pojo.User;
 import com.lazySheep.seckill.service.UserService;
+import com.lazySheep.seckill.util.CookieUtil;
 import com.lazySheep.seckill.util.MD5Util;
+import com.lazySheep.seckill.util.UUIDUtil;
 import com.lazySheep.seckill.util.ValidatorUtil;
 import com.lazySheep.seckill.vo.LoginVo;
 import com.lazySheep.seckill.vo.RespBean;
@@ -56,6 +58,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!MD5Util.midPassToDBPass(password, user.getSlat()).equals(user.getPassword())) {
             return RespBean.error(RespBeanEnum.LOGIN_ERROR);
         }
+
+        //generate cookie
+        String ticket = UUIDUtil.uuid();
+        request.getSession().setAttribute(ticket, user);
+        CookieUtil.setCookie(request, response, "userTicket", ticket);
 
         return RespBean.success();
     }
