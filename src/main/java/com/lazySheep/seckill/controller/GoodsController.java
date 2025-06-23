@@ -1,7 +1,9 @@
 package com.lazySheep.seckill.controller;
 
 import com.lazySheep.seckill.pojo.User;
+import com.lazySheep.seckill.service.GoodsService;
 import com.lazySheep.seckill.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -27,6 +29,8 @@ import javax.servlet.http.HttpSession;
 public class GoodsController {
     @Resource
     private UserService userService;
+    @Autowired
+    private GoodsService goodsService;
     //跳转到商品列表页
 //    @RequestMapping(value = "/toList")
 //    public String toList(HttpSession session, Model model, @CookieValue("userTicket") String ticket) {
@@ -55,6 +59,8 @@ public class GoodsController {
             return "login";
         }
         model.addAttribute("user", user);
+        //展示商品
+        model.addAttribute("goodsList", goodsService.findGoodsVo());
         return "goodsList";
     }
 }
