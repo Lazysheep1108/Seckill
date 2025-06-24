@@ -16,6 +16,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.Date;
 
 /**
  * @author LazySheep
@@ -67,10 +68,33 @@ public class GoodsController {
     }
 
     @RequestMapping(value = "/toDetail/{goodsId}")
-    public  String toDetail(Model model, User user, @PathVariable Long goodsId){
-        model.addAttribute("user",user);
+    public String toDetail(Model model, User user, @PathVariable Long goodsId) {
+        model.addAttribute("user", user);
         GoodsVo goodsVo = goodsService.findGoodsVoByGoodsId(goodsId);
-        model.addAttribute("goods",goodsVo);
+
+        //============处理秒杀倒计时和状态 start ==============
+        Date startDate = goodsVo.getStartDate();
+        Date endDate = goodsVo.getEndDate();
+        Date nowDate = new Date();
+        //秒杀状态
+        int secKillStatus = 0;
+        //秒杀倒计时
+        int remainSeconds = 0;
+        if (nowDate.before(startDate)) {
+            //秒杀还没有开始
+            remainSeconds = (int) ((startDate.getTime() - nowDate.getTime()) / 1000);
+        } else if (nowDate.after(endDate)) {//秒杀结束
+            secKillStatus = 2;
+            remainSeconds = -1;
+        } else {
+            //秒杀进行中
+            secKillStatus = 1;
+            remainSeconds = 0;
+        }
+        model.addAttribute("secKillStatus", secKillStatus);
+        model.addAttribute("remainSeconds", remainSeconds);
+        //============处理秒杀倒计时和状态 end==============
+        model.addAttribute("goods", goodsVo);
         return "goodsDetail";
     }
 }
