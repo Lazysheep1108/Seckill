@@ -10,4 +10,7 @@ import java.util.List;
 public interface GoodsMapper extends BaseMapper<Goods> {
     List<GoodsVo> findGoodsVo();
 
+    //根据goodsId查询商品详情页面
+    GoodsVo findGoodsVoByGoodsId(Long goodsId);
+
 }

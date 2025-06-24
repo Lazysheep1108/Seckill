@@ -3,11 +3,13 @@ package com.lazySheep.seckill.controller;
 import com.lazySheep.seckill.pojo.User;
 import com.lazySheep.seckill.service.GoodsService;
 import com.lazySheep.seckill.service.UserService;
+import com.lazySheep.seckill.vo.GoodsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
@@ -62,5 +64,13 @@ public class GoodsController {
         //展示商品
         model.addAttribute("goodsList", goodsService.findGoodsVo());
         return "goodsList";
+    }
+
+    @RequestMapping(value = "/toDetail/{goodsId}")
+    public  String toDetail(Model model, User user, @PathVariable Long goodsId){
+        model.addAttribute("user",user);
+        GoodsVo goodsVo = goodsService.findGoodsVoByGoodsId(goodsId);
+        model.addAttribute("goods",goodsVo);
+        return "goodsDetail";
     }
 }
