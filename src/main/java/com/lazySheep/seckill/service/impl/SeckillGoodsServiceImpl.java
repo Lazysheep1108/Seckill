@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lazySheep.seckill.mapper.SeckillGoodsMapper;
 import com.lazySheep.seckill.pojo.SeckillGoods;
 import com.lazySheep.seckill.service.SeckillGoodsService;
+import org.springframework.stereotype.Service;
 
 /**
  * @author LazySheep
@@ -13,6 +14,7 @@ import com.lazySheep.seckill.service.SeckillGoodsService;
  * @project seckill
  * @description
  */
+@Service
 public class SeckillGoodsServiceImpl extends
         ServiceImpl<SeckillGoodsMapper, SeckillGoods>
         implements SeckillGoodsService {
