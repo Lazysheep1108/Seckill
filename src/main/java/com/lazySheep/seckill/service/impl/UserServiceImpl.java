@@ -74,14 +74,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public User getUserByCookie(String userTicket, HttpServletRequest request, HttpServletResponse response) {
-        if(!StringUtils.hasText(userTicket)){
+        if (!StringUtils.hasText(userTicket)) {
             return null;
         }
         User user = (User) redisTemplate.opsForValue().get("user:" + userTicket);
         //如果用户不为空,延长cookie的使用时间
-        if(user!=null){
-            CookieUtil.setCookie(request,response,"userTicket",userTicket);
+        if (user != null) {
+            CookieUtil.setCookie(request, response, "userTicket", userTicket);
         }
         return user;
+    }
+
+    @Override
+    public RespBean updatePassword(String userTicket, String password, HttpServletRequest request, HttpServletResponse response) {
+        //更新用户密码,同时删除用户在Redis的缓存对象
+        User user = getUserByCookie(userTicket, request, response);
+
+        if (user == null) {
+            throw new GlobalException(RespBeanEnum.MOBILE_NOT_EXIST);
+        }
+
+        user.setPassword(MD5Util.inputPassToDBPass(password, user.getSlat()));
+        int i = userMapper.updateById(user);
+        if (i == 1) {
+            //删除redis
+            redisTemplate.delete("user:" + userTicket);
+            return RespBean.success();
+        }
+        return RespBean.error(RespBeanEnum.PASSWROD_UPDATE_FAIL);
     }
 }
