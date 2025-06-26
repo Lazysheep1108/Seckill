@@ -115,11 +115,53 @@ public class GoodsController {
 
 
 
-    @RequestMapping(value = "/toDetail/{goodsId}")
-    public String toDetail(Model model, User user, @PathVariable Long goodsId) {
+//    @RequestMapping(value = "/toDetail/{goodsId}") //访问mysql
+//    public String toDetail(Model model, User user, @PathVariable Long goodsId) {
+//        model.addAttribute("user", user);
+//        GoodsVo goodsVo = goodsService.findGoodsVoByGoodsId(goodsId);
+//
+//        //============处理秒杀倒计时和状态 start ==============
+//        Date startDate = goodsVo.getStartDate();
+//        Date endDate = goodsVo.getEndDate();
+//        Date nowDate = new Date();
+//        //秒杀状态
+//        int secKillStatus = 0;
+//        //秒杀倒计时
+//        int remainSeconds = 0;
+//        if (nowDate.before(startDate)) {
+//            //秒杀还没有开始
+//            remainSeconds = (int) ((startDate.getTime() - nowDate.getTime()) / 1000);
+//        } else if (nowDate.after(endDate)) {//秒杀结束
+//            secKillStatus = 2;
+//            remainSeconds = -1;
+//        } else {
+//            //秒杀进行中
+//            secKillStatus = 1;
+//            remainSeconds = 0;
+//        }
+//        model.addAttribute("secKillStatus", secKillStatus);
+//        model.addAttribute("remainSeconds", remainSeconds);
+//        //============处理秒杀倒计时和状态 end==============
+//        model.addAttribute("goods", goodsVo);
+//        return "goodsDetail";
+//    }
+
+    //跳转商品详情页面
+    @RequestMapping(value = "/toDetail/{goodsId}",
+            produces = "text/html;charset=utf-8")
+    @ResponseBody
+    public String toDetail(Model model, User user,
+                           @PathVariable Long goodsId,
+                           HttpServletRequest request,
+                           HttpServletResponse response) {
+        //使用页面缓存
+        ValueOperations valueOperations = redisTemplate.opsForValue();
+        String html = (String) valueOperations.get("goodsDetail:" + goodsId);
+        if (StringUtils.hasText(html)) {
+            return html;
+        }
         model.addAttribute("user", user);
         GoodsVo goodsVo = goodsService.findGoodsVoByGoodsId(goodsId);
-
         //============处理秒杀倒计时和状态 start ==============
         Date startDate = goodsVo.getStartDate();
         Date endDate = goodsVo.getEndDate();
@@ -130,10 +172,11 @@ public class GoodsController {
         int remainSeconds = 0;
         if (nowDate.before(startDate)) {
             //秒杀还没有开始
-            remainSeconds = (int) ((startDate.getTime() - nowDate.getTime()) / 1000);
-        } else if (nowDate.after(endDate)) {//秒杀结束
+            remainSeconds = (int) ((startDate.getTime()- nowDate.getTime()) / 1000);
+        } else if (nowDate.after(endDate)) {
+            //秒杀结束
             secKillStatus = 2;
-            remainSeconds = -1;
+            remainSeconds =-1;
         } else {
             //秒杀进行中
             secKillStatus = 1;
@@ -141,8 +184,20 @@ public class GoodsController {
         }
         model.addAttribute("secKillStatus", secKillStatus);
         model.addAttribute("remainSeconds", remainSeconds);
-        //============处理秒杀倒计时和状态 end==============
         model.addAttribute("goods", goodsVo);
-        return "goodsDetail";
+        //return "goodsDetail";
+        //============处理秒杀倒计时和状态 end==============
+        //如果为null，手动渲染，存入redis中
+        WebContext webContext = new WebContext(request, response,
+                request.getServletContext()
+                , request.getLocale(), model.asMap());
+        html = thymeleafViewResolver.getTemplateEngine()
+                .process("goodsDetail", webContext);
+        if (StringUtils.hasText(html)) {
+            //设置每60s 更新一次缓存, 即60s后, 该页面缓存失效,Redis会清除该页面缓存
+            valueOperations.set("goodsDetail:" +
+                    goodsId, html, 60, TimeUnit.SECONDS);
+        }
+        return html;
     }
 }
